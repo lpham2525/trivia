@@ -23,6 +23,16 @@ const endGame = () => {
       rf('leaderboard.json', 'utf-8')
         .then(data => {
           console.log(data)
+          let leaderboard = JSON.parse(data)
+          leaderboard.push({
+            username,
+            score: points
+          })
+          wf('leaderboard.json', JSON.stringify(leaderboard))
+            .then(() => {
+              mainMenu()
+            })
+            .catch(err => console.log(err))
         })
         .catch(err => console.log(err))
     })
@@ -34,7 +44,7 @@ const newQuestion = () => {
       type: 'list',
       name: 'answer',
       message: questions[index].question,
-      choices: questions[index].incorrect_answers
+      choices: shuffle(questions[index].incorrect_answers)
     })
       .then(({ answer }) => {
         if (answer === questions[index].correct_answer) {
@@ -56,6 +66,8 @@ const newQuestion = () => {
 }
 
 const newGame = () => {
+  index = 0
+  points = 0
   prompt({
     type: 'list',
     name: 'category',
@@ -96,7 +108,18 @@ const getCategories = () => {
 }
 
 const viewBoard = () => {
-  console.log('view board')
+  rf('leaderboard.json', 'utf8')
+    .then(data => {
+      let leaderboard = JSON.parse(data)
+      let leaderboardSorted = leaderboard.sort((a, b) => {
+        b.score = a.score
+      })
+      leaderboardSorted.forEach(record => {
+        console.log(`Username: ${record.username} | Score: ${record.score}`)
+      })
+      mainMenu()
+    })
+    .catch(err => console.log(err))
 }
 
 const mainMenu = () => {
@@ -104,7 +127,7 @@ const mainMenu = () => {
     type: 'list',
     name: 'action',
     message: 'What would you like to do?',
-    choices: ['New Game', 'View Leaderboard']
+    choices: ['New Game', 'View Leaderboard', 'EXIT']
   })
     .then(({ action }) => {
       switch (action) {
@@ -113,6 +136,9 @@ const mainMenu = () => {
           break
         case 'View Leaderboard':
           viewBoard()
+          break
+        case 'EXIT':
+          process.exit()
           break
       }
     })
