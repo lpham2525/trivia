@@ -2,7 +2,7 @@ const { prompt } = require('inquirer')
 const axios = require('axios')
 const shuffle = require('shuffle-array')
 const { writeFile, readFile } = require('fs')
-const { promisify } = require('utils')
+const { promisify } = require('util')
 
 const wf = promisify(writeFile)
 const rf = promisify(readFile)
